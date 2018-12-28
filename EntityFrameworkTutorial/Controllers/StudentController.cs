@@ -11,6 +11,8 @@ using EntityFrameworkTutorial.Models;
 
 namespace EntityFrameworkTutorial.Controllers
 {
+   [RoutePrefix("Student")]
+   [Route("{action=index}")]
     public class StudentController : Controller
     {
         private SchoolContext db = new SchoolContext();
