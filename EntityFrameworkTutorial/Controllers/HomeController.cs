@@ -1,4 +1,6 @@
-﻿using System;
+﻿using EntityFrameworkTutorial.DAL;
+using EntityFrameworkTutorial.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -8,6 +10,7 @@ namespace EntityFrameworkTutorial.Controllers
 {
    public class HomeController : Controller
    {
+      private SchoolContext db = new SchoolContext();
       public ActionResult Index()
       {
          return View();
@@ -15,9 +18,16 @@ namespace EntityFrameworkTutorial.Controllers
 
       public ActionResult About()
       {
-         ViewBag.Message = "Your application description page.";
-
-         return View();
+         IQueryable<EnrollmentDateGroup> enrollmentDates 
+               = db.Students
+               .GroupBy(s => s.EnrollmentDate)
+               .Select(s => new EnrollmentDateGroup
+               {
+                  EnrollmentDate = s.Key,
+                  StudentCount = s.Count()
+               });
+         
+         return View(enrollmentDates);
       }
 
       public ActionResult Contact()
@@ -25,6 +35,11 @@ namespace EntityFrameworkTutorial.Controllers
          ViewBag.Message = "Your contact page.";
 
          return View();
+      }
+      protected override void Dispose(bool disposing)
+      {
+         db.Dispose();
+         base.Dispose(disposing);
       }
    }
 }

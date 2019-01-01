@@ -8,6 +8,7 @@ using System.Web;
 using System.Web.Mvc;
 using EntityFrameworkTutorial.DAL;
 using EntityFrameworkTutorial.Models;
+using PagedList;
 
 namespace EntityFrameworkTutorial.Controllers
 {
@@ -18,9 +19,41 @@ namespace EntityFrameworkTutorial.Controllers
       private SchoolContext db = new SchoolContext();
 
       // GET: Student
-      public ActionResult Index()
+      public ActionResult Index(string sortOrder, string filterString, string currentFilter, int page = 1)
       {
-         return View(db.Students.ToList());
+         ViewBag.CurrentSort = sortOrder;
+         ViewBag.NameSortParam = string.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+         ViewBag.DateSortParam = sortOrder == "Date" ? "date_desc" : "Date";
+
+         if (filterString == null)
+         {
+            filterString = currentFilter;
+         }
+         ViewBag.CurrentFilter = filterString;
+         var students = db.Students.Select(s => s);
+         if (!string.IsNullOrEmpty(filterString))
+         {
+            students = students.Where(s => s.LastName.Contains(filterString)
+            || s.FirstMidName.Contains(filterString));
+         }
+         switch (sortOrder)
+         {
+            case "name_desc":
+               students = students.OrderByDescending(s => s.LastName);
+               break;
+            case "Date":
+               students = students.OrderBy(s => s.EnrollmentDate);
+               break;
+            case "date_desc":
+               students = students.OrderByDescending(s => s.EnrollmentDate);
+               break;
+            default:
+               students = students.OrderBy(s => s.LastName);
+               break;
+         }
+         int pageSize = 3;
+         int pageNumber = page;
+         return View(students.ToPagedList(page, pageSize));
       }
 
       // GET: Student/Details/5
@@ -52,13 +85,21 @@ namespace EntityFrameworkTutorial.Controllers
       [Route("create")]
       [HttpPost]
       [ValidateAntiForgeryToken]
-      public ActionResult Create([Bind(Include = "ID,LastName,FirstMidName,EnrollmentDate")] Student student)
+      public ActionResult Create([Bind(Include = "LastName,FirstMidName,EnrollmentDate")] Student student)
       {
-         if (ModelState.IsValid)
+         try
          {
-            db.Students.Add(student);
-            db.SaveChanges();
-            return RedirectToAction("Index");
+            if (ModelState.IsValid)
+            {
+               db.Students.Add(student);
+               db.SaveChanges();
+               return RedirectToAction("Index");
+            }
+         }
+         catch (DataException /* dex */)
+         {
+            //Log the error (uncomment dex variable name and add a line here to write a log.
+            ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists see your system administrator.");
          }
 
          return View(student);
@@ -84,23 +125,37 @@ namespace EntityFrameworkTutorial.Controllers
       // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
       [HttpPost]
       [ValidateAntiForgeryToken]
-      public ActionResult Edit([Bind(Include = "ID,LastName,FirstMidName,EnrollmentDate")] Student student)
+      public ActionResult Edit(int id)
       {
-         if (ModelState.IsValid)
+         var studentToUpdate = db.Students.Find(id);
+         if (TryUpdateModel(studentToUpdate, "",
+            new string[] { "LastName", "FirstMidName", "EnrollmentDate" }))
          {
-            db.Entry(student).State = EntityState.Modified;
-            db.SaveChanges();
-            return RedirectToAction("Index");
+
+            try
+            {
+               db.SaveChanges();
+               return RedirectToAction("Index");
+            }
+            catch (DataException /* dex */)
+            {
+               //Log the error (uncomment dex variable name and add a line here to write a log.
+               ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists, see your system administrator.");
+            }
+
+
          }
-         return View(student);
+
+
+         return View(studentToUpdate);
       }
 
       // GET: Student/Delete/5
-      public ActionResult Delete(int? id)
+      public ActionResult Delete(int id, bool? errorOcurred = false)
       {
-         if (id == null)
+         if (errorOcurred.GetValueOrDefault())
          {
-            return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            ViewBag.ErrorMessage = "Delete Failed, Try Again";
          }
          Student student = db.Students.Find(id);
          if (student == null)
@@ -115,9 +170,16 @@ namespace EntityFrameworkTutorial.Controllers
       [ValidateAntiForgeryToken]
       public ActionResult DeleteConfirmed(int id)
       {
-         Student student = db.Students.Find(id);
-         db.Students.Remove(student);
-         db.SaveChanges();
+         try
+         {
+            Student studentToDelete = new Student() { ID = id }; // se cambia el find, para inicializar una entidad para evitar dos consultas a solo la requerida para eliminar la entidad
+            db.Entry(studentToDelete).State = EntityState.Deleted;
+            db.SaveChanges();
+         }
+         catch (DataException /*dex*/)
+         {
+            return RedirectToAction("Delete");
+         }
          return RedirectToAction("Index");
       }
 
