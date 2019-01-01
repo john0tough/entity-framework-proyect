@@ -19,7 +19,7 @@ namespace EntityFrameworkTutorial.Controllers
       public ActionResult About()
       {
          IQueryable<EnrollmentDateGroup> enrollmentDates 
-               = db.Students
+               = db.Students 
                .GroupBy(s => s.EnrollmentDate)
                .Select(s => new EnrollmentDateGroup
                {
