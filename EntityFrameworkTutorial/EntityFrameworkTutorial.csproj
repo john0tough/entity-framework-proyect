@@ -171,13 +171,28 @@
     </Compile>
     <Compile Include="Logging\ILogger.cs" />
     <Compile Include="Logging\Logger.cs" />
-    <Compile Include="Migrations\201901060210572_InitialCreate.cs" />
-    <Compile Include="Migrations\201901060210572_InitialCreate.Designer.cs">
-      <DependentUpon>201901060210572_InitialCreate.cs</DependentUpon>
+    <Compile Include="Migrations\201901070340010_InitialCreate.cs" />
+    <Compile Include="Migrations\201901070340010_InitialCreate.Designer.cs">
+      <DependentUpon>201901070340010_InitialCreate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201901070355245_CompleteStudentProperties.cs" />
+    <Compile Include="Migrations\201901070355245_CompleteStudentProperties.Designer.cs">
+      <DependentUpon>201901070355245_CompleteStudentProperties.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201901070507358_ComplexDataModel.cs" />
+    <Compile Include="Migrations\201901070507358_ComplexDataModel.Designer.cs">
+      <DependentUpon>201901070507358_ComplexDataModel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201901070511385_AddLastModels.cs" />
+    <Compile Include="Migrations\201901070511385_AddLastModels.Designer.cs">
+      <DependentUpon>201901070511385_AddLastModels.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Course.cs" />
+    <Compile Include="Models\Department.cs" />
     <Compile Include="Models\Enrollment.cs" />
+    <Compile Include="Models\Instructor.cs" />
+    <Compile Include="Models\OfficeAssignment.cs" />
     <Compile Include="Models\Student.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModel\EnrollmentDateGroup.cs" />
@@ -246,8 +261,17 @@
     <Content Include="Scripts\jquery-3.3.1.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201901060210572_InitialCreate.resx">
-      <DependentUpon>201901060210572_InitialCreate.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201901070340010_InitialCreate.resx">
+      <DependentUpon>201901070340010_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201901070355245_CompleteStudentProperties.resx">
+      <DependentUpon>201901070355245_CompleteStudentProperties.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201901070507358_ComplexDataModel.resx">
+      <DependentUpon>201901070507358_ComplexDataModel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201901070511385_AddLastModels.resx">
+      <DependentUpon>201901070511385_AddLastModels.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

@@ -37,8 +37,8 @@ namespace EntityFrameworkTutorial.Migrations
                 c => new
                     {
                         ID = c.Int(nullable: false, identity: true),
-                        LastName = c.String(),
-                        FirstMidName = c.String(),
+                        LastName = c.String(maxLength: 50),
+                        FirstMidName = c.String(maxLength: 50),
                         EnrollmentDate = c.DateTime(nullable: false),
                     })
                 .PrimaryKey(t => t.ID);

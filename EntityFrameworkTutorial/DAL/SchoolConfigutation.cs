@@ -8,8 +8,8 @@ namespace EntityFrameworkTutorial.DAL
    {
       SchoolConfigutation() {
          SetExecutionStrategy("System.DataClient.SqlClient", () => new SqlAzureExecutionStrategy());
-         DbInterception.Add(new SchoolInterceptorTrasientErrors());
-         DbInterception.Add(new SchoolInterceptorLogging());
+         // DbInterception.Add(new SchoolInterceptorTrasientErrors());
+         // DbInterception.Add(new SchoolInterceptorLogging());
       }
    }
 }
