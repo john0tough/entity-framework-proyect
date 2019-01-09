@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
 using System.Web;
@@ -15,6 +16,10 @@ namespace EntityFrameworkTutorial.Controllers
    {
       private SchoolContext db = new SchoolContext();
 
+      private void PopulateDepartmentDropDownList(int? DepartmentID = null) {
+         var departmentQuery = db.Departments.OrderBy(d => d.Name);
+         ViewBag.DepartmentID = new SelectList(departmentQuery, "DepartmentID", "Name", DepartmentID);
+      }
       // GET: Course
       public ActionResult Index()
       {
@@ -40,6 +45,7 @@ namespace EntityFrameworkTutorial.Controllers
       // GET: Course/Create
       public ActionResult Create()
       {
+         PopulateDepartmentDropDownList();
          return View();
       }
 
@@ -48,15 +54,23 @@ namespace EntityFrameworkTutorial.Controllers
       // más información vea https://go.microsoft.com/fwlink/?LinkId=317598.
       [HttpPost]
       [ValidateAntiForgeryToken]
-      public ActionResult Create([Bind(Include = "CourseID,Title,Credits,DepartamentID")] Course course)
+      public ActionResult Create([Bind(Include = "CourseID,Title,Credits,DepartmentID")] Course course)
       {
-         if (ModelState.IsValid)
+         try
          {
-            db.Courses.Add(course);
-            db.SaveChanges();
-            return RedirectToAction("Index");
+            if (ModelState.IsValid)
+            {
+               db.Courses.Add(course);
+               db.SaveChanges();
+               return RedirectToAction("Index");
+            }
          }
-
+         catch (RetryLimitExceededException /* dex */)
+         {
+            //Log the error (uncomment dex variable name and add a line here to write a log.)
+            ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists, see your system administrator.");
+         }
+         PopulateDepartmentDropDownList(course.DepartmentID);
          return View(course);
       }
 
@@ -72,23 +86,38 @@ namespace EntityFrameworkTutorial.Controllers
          {
             return HttpNotFound();
          }
+
+         PopulateDepartmentDropDownList(course.DepartmentID);
          return View(course);
       }
 
       // POST: Course/Edit/5
       // Para protegerse de ataques de publicación excesiva, habilite las propiedades específicas a las que desea enlazarse. Para obtener 
       // más información vea https://go.microsoft.com/fwlink/?LinkId=317598.
-      [HttpPost]
+      [HttpPost, ActionName("Edit")]
       [ValidateAntiForgeryToken]
-      public ActionResult Edit([Bind(Include = "CourseID,Title,Credits,DepartamentID")] Course course)
+      public ActionResult EditPost(int? id)
       {
-         if (ModelState.IsValid)
+         if (id == null)
          {
-            db.Entry(course).State = EntityState.Modified;
-            db.SaveChanges();
-            return RedirectToAction("Index");
+            return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
          }
-         return View(course);
+         var courseToUpdate = db.Courses.Find(id);
+         if (TryUpdateModel(courseToUpdate, "", new string[] { "Title", "Credits", "DepartmentID"})) {
+            try
+            {
+               db.SaveChanges();
+
+               return RedirectToAction("Index");
+            }
+            catch (RetryLimitExceededException /* dex */)
+            {
+               //Log the error (uncomment dex variable name and add a line here to write a log.
+               ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists, see your system administrator.");
+            }
+         }
+         PopulateDepartmentDropDownList(courseToUpdate.DepartmentID);
+         return View(courseToUpdate);
       }
 
       // GET: Course/Delete/5

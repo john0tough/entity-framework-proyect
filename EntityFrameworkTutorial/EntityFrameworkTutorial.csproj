@@ -185,6 +185,7 @@
     <Compile Include="Models\OfficeAssignment.cs" />
     <Compile Include="Models\Student.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModel\AssignedCourseData.cs" />
     <Compile Include="ViewModel\EnrollmentDateGroup.cs" />
     <Compile Include="ViewModel\InstructorIndexData.cs" />
   </ItemGroup>
