@@ -7,13 +7,13 @@ namespace EntityFrameworkTutorial.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.2.0-61023")]
-    public sealed partial class CompleteStudentProperties : IMigrationMetadata
+    public sealed partial class InitialCreate : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(CompleteStudentProperties));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(InitialCreate));
         
         string IMigrationMetadata.Id
         {
-            get { return "201901070355245_CompleteStudentProperties"; }
+            get { return "201901080343236_InitialCreate"; }
         }
         
         string IMigrationMetadata.Source
