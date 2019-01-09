@@ -1,4 +1,5 @@
-﻿@model EntityFrameworkTutorial.Models.Instructor
+﻿@using EntityFrameworkTutorial.ViewModel
+@model EntityFrameworkTutorial.Models.Instructor
 
 @{
 	ViewBag.Title = "Edit";
@@ -48,7 +49,34 @@
 
 			</div>
 		</div>
-
+	   <div class="form-group">
+	      <div class="col-md-offset-2 col-md-10">
+	         <table>
+	            <tr>
+	               @{
+                     int cnt = 0;
+                     List<EntityFrameworkTutorial.ViewModel.AssignedCourseData> courses = ViewBag.Courses;
+                     foreach (var course in courses)
+                     {
+                        if (cnt++ % 3 == 0)
+                        {
+                           @:</tr><tr>
+                        }
+                        @:<tr>
+                        @:<label>
+                           <input type="checkbox"
+                                  name="selectedCourses"
+                                  value="@course.CourseID"
+                                  @Html.Raw(course.Assigned ? "checked=\"checked\"" : "") />
+                           @course.CourseID @: @course.Title
+                        @:</label>
+                        @:</td>
+                     }
+                  }
+	            </tr>
+	         </table>
+	      </div>
+	   </div>
 		<div class="form-group">
 			<div class="col-md-offset-2 col-md-10">
 				<input type="submit" value="Save" class="btn btn-default" />

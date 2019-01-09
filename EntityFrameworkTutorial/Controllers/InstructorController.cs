@@ -100,8 +100,7 @@ namespace EntityFrameworkTutorial.Controllers
          Instructor instructor = db.Instructors
             .Include(i => i.OfficeAssignment)
             .Include(i => i.Courses)
-            .Where(i => i.ID == id)
-            .Single();
+            .Single(i => i.ID == id);
          PopulatedAssignedCourseData(instructor);
          if (instructor == null)
          {
@@ -116,8 +115,10 @@ namespace EntityFrameworkTutorial.Controllers
          var allCourses = db.Courses;
          var instructorCourses = new HashSet<int>(instructor.Courses.Select(c => c.CourseID));
          var viewModel = new List<AssignedCourseData>();
-         foreach(var course in allCourses) {
-            viewModel.Add(new AssignedCourseData {
+         foreach (var course in allCourses)
+         {
+            viewModel.Add(new AssignedCourseData
+            {
                Assigned = instructorCourses.Contains(course.CourseID),
                CourseID = course.CourseID,
                Title = course.Title
@@ -140,9 +141,8 @@ namespace EntityFrameworkTutorial.Controllers
          var instructorToUpdate = db.Instructors
             .Include(i => i.OfficeAssignment)
             .Include(i => i.Courses)
-            .Where(i => i.ID == id)
-            .Single();
-         if (TryUpdateModel(instructorToUpdate, "", new string[] { "LastName", "FirstMidName", "HireDate", "OfficeAssigment" }))
+            .Single(i => i.ID == id);
+         if (TryUpdateModel(instructorToUpdate, "", new string[] { "LastName", "FirstMidName", "HireDate", "OfficeAssignment" }))
          {
             try
             {
@@ -169,14 +169,16 @@ namespace EntityFrameworkTutorial.Controllers
 
       private void UpdateInstructorCourses(string[] selectedCourses, Instructor instructorToUpdate)
       {
-         if (selectedCourses == null) {
+         if (selectedCourses == null)
+         {
             instructorToUpdate.Courses = new List<Course>();
             return;
          }
          var selectedCoursesHS = new HashSet<string>(selectedCourses);
          var instructorCourses = new HashSet<int>(instructorToUpdate.Courses.Select(c => c.CourseID));
 
-         foreach (var course in db.Courses) {
+         foreach (var course in db.Courses)
+         {
             if (selectedCoursesHS.Contains(course.CourseID.ToString()))
             {
                if (!instructorCourses.Contains(course.CourseID))
@@ -184,8 +186,10 @@ namespace EntityFrameworkTutorial.Controllers
                   instructorToUpdate.Courses.Add(course);
                }
             }
-            else {
-               if (instructorCourses.Contains(course.CourseID)) {
+            else
+            {
+               if (instructorCourses.Contains(course.CourseID))
+               {
                   instructorToUpdate.Courses.Remove(course);
                }
             }
