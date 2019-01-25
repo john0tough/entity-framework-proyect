@@ -68,7 +68,9 @@ namespace EntityFrameworkTutorial.Controllers
       // GET: Instructor/Create
       public ActionResult Create()
       {
-         ViewBag.ID = new SelectList(db.OfficeAssignments, "InstructorID", "Location");
+         var instructor = new Instructor();
+         instructor.Courses = new List<Course>();
+         PopulatedAssignedCourseData(instructor);
          return View();
       }
 
@@ -77,8 +79,17 @@ namespace EntityFrameworkTutorial.Controllers
       // más información vea https://go.microsoft.com/fwlink/?LinkId=317598.
       [HttpPost]
       [ValidateAntiForgeryToken]
-      public ActionResult Create([Bind(Include = "ID,LastName,FirstMidName,HireDate")] Instructor instructor)
+      public ActionResult Create([Bind(Include = "LastName,FirstMidName,HireDate,OfficeAssignment")] Instructor instructor, string[] selectedCourses)
       {
+         if (selectedCourses != null)
+         {
+            instructor.Courses = new List<Course>();
+            foreach (var course in selectedCourses)
+            {
+               var courseToAdd = db.Courses.Find(int.Parse(course));
+               instructor.Courses.Add(courseToAdd);
+            }
+         }
          if (ModelState.IsValid)
          {
             db.Instructors.Add(instructor);
@@ -86,7 +97,7 @@ namespace EntityFrameworkTutorial.Controllers
             return RedirectToAction("Index");
          }
 
-         ViewBag.ID = new SelectList(db.OfficeAssignments, "InstructorID", "Location", instructor.ID);
+         PopulatedAssignedCourseData(instructor);
          return View(instructor);
       }
 
@@ -217,8 +228,20 @@ namespace EntityFrameworkTutorial.Controllers
       [ValidateAntiForgeryToken]
       public ActionResult DeleteConfirmed(int id)
       {
-         Instructor instructor = db.Instructors.Find(id);
+         Instructor instructor = db.Instructors
+            .Include(i => i.OfficeAssignment)
+            .Single(i => i.ID == id);
+
          db.Instructors.Remove(instructor);
+
+         var department = db.Departments
+            .SingleOrDefault(d => d.InstructorID == id);
+
+         if (department != null)
+         {
+            department.InstructorID = null;
+         }
+
          db.SaveChanges();
          return RedirectToAction("Index");
       }
